@@ -45,7 +45,7 @@ jobs:
         DOCKER_BUILDKIT: 1
       run: |
         set -e
-        docker image pull $TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}
+        docker image pull $(TRE_DEPLOYMENT_ACR_NAME).azurecr.io/tredev:${{ github.run_id }}
   
   deploy_management:
     name: Deploy Management
