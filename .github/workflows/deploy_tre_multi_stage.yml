@@ -19,7 +19,7 @@ concurrency: "${{ github.workflow }}-${{ github.ref }}"
 # TODO: bootstrap a new ACR. Using a manual one for now. 
 
 jobs:
- prebuild-containers:
+  prebuild-containers:
     name: Prebuild Containers
     environment: dev
     runs-on: ubuntu-latest
@@ -64,5 +64,30 @@ jobs:
           $TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}
 
         docker image push $TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}
+
+  build_core_images:
+    # used to build images used by core infrastructure
+    name: Build Core Docker Images
+    runs-on: ubuntu-latest
+    environment: dev
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [build-and-push-api, build-and-push-resource-processor, build-and-push-airlock-processor]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Docker build
+        uses: ./.github/actions/devcontainer_run_command
+        with:
+          COMMAND: "make ${{ matrix.target }}"
+          DEVCONTAINER_TAG: ${{ github.run_id }}
+          CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
   
   
