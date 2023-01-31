@@ -3,7 +3,7 @@ name: Deploy Azure TRE Single Stage
 # This workflow is called by the "Deploy Azure TRE Multi Stage" workflow, and will deploy a TRE to a given environment
 
 on:  # yamllint disable-line rule:truthy
-  workflow_dispatch:
+  workflow_call:
     inputs:
       environment:
         description: The environment to run this workflow in
