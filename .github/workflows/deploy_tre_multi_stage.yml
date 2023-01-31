@@ -93,35 +93,35 @@ jobs:
           # shared bundles
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/firewall/"}
-          - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/gitea/"}
-          - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/admin-vm/"}
-          - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
-          # other default bundles
-          - {BUNDLE_TYPE: "workspace",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
-          - {BUNDLE_TYPE: "workspace",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
+          # - {BUNDLE_TYPE: "shared_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/gitea/"}
+          # - {BUNDLE_TYPE: "shared_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/admin-vm/"}
+          # - {BUNDLE_TYPE: "shared_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
+          # # other default bundles
+          # - {BUNDLE_TYPE: "workspace",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
+          # - {BUNDLE_TYPE: "workspace",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
+          # - {BUNDLE_TYPE: "workspace_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
+          # - {BUNDLE_TYPE: "workspace_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
+          # - {BUNDLE_TYPE: "workspace_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
+          # - {BUNDLE_TYPE: "workspace_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
+          # - {BUNDLE_TYPE: "workspace_service",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
+          # - {BUNDLE_TYPE: "user_resource",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
+          # - {BUNDLE_TYPE: "user_resource",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm"}
+          # - {BUNDLE_TYPE: "user_resource",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
+          # - {BUNDLE_TYPE: "user_resource",
+          #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
     environment: dev
     steps:
       - name: Checkout
