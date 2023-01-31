@@ -154,6 +154,6 @@ jobs:
     with:
       environmentName: dev
     secrets:
-      TRE_DEPLOYMENT_ACR: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
+      TRE_DEPLOYMENT_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
       TRE_DEPLOYMENT_AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
