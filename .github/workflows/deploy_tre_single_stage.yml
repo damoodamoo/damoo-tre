@@ -5,15 +5,13 @@ name: Deploy Azure TRE Single Stage
 on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
-      environment:
-        description: The environment to run this workflow in
-        type: environment
-        default: dev
+      environmentName:
+        description: The name of the Github Action's environment this will deploy into
+        type: string
         required: true
     secrets:
       TRE_DEPLOYMENT_ACR:
         description: The ACR hostname containing the images to be brought into this environment
-        type: string
         required: true
       TRE_DEPLOYMENT_AZURE_CREDENTIALS:
         description: "Creds for the subscription which contains the deployment ACR"
@@ -22,7 +20,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   build-devcontainer:
     name: Pull Devcontainer
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environmentName }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
