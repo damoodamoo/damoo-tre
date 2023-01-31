@@ -19,8 +19,8 @@ concurrency: "${{ github.workflow }}-${{ github.ref }}"
 # TODO: bootstrap a new ACR. Using a manual one for now. 
 
 jobs:
-  prebuild-containers:
-    name: Prebuild Containers
+  build-devcontainer:
+    name: Build Devcontainer
     environment: dev
     runs-on: ubuntu-latest
     steps:
@@ -70,6 +70,7 @@ jobs:
     name: Build Core Docker Images
     runs-on: ubuntu-latest
     environment: dev
+    needs: [build-devcontainer]
     strategy:
       fail-fast: true
       matrix:
