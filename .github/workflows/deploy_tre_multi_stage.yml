@@ -90,5 +90,65 @@ jobs:
           CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
+
+  publish_bundles:
+    name: Publish Bundles
+    runs-on: ubuntu-latest
+    needs: [build-devcontainer]
+    strategy:
+      matrix:
+        include:
+          # shared bundles
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/firewall/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/gitea/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/admin-vm/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
+          # other default bundles
+          - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
+          - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Publish bundle
+        uses: ./.github/actions/devcontainer_run_command
+        with:
+          # Although porter publish will build automatically, our makefile build target includes logic that should run
+          COMMAND: >-
+            for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
+            && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
+          DEVCONTAINER_TAG: ${{ github.run_id }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME}}
+          ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
   
   
