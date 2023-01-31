@@ -1,0 +1,67 @@
+---
+name: Deploy Azure TRE Multi Stage
+# This workflow is the integration build run for pushes to the main branch
+# It also runs on a schedule, serving as the nightly build
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: The environment to run this workflow in
+        type: environment
+        default: dev
+        required: true
+
+# This will prevent multiple runs of this entire workflow.
+# We should NOT cancel in progress runs as that can destabilize the environment.
+concurrency: "${{ github.workflow }}-${{ github.ref }}"
+
+# TODO: bootstrap a new ACR. Using a manual one for now. 
+
+jobs:
+ prebuild-containers:
+    name: Prebuild Containers
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+
+    - name: Set up Docker BuildKit
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: ACR Login
+      id: tre_deployment_acr_login
+      run: az acr login --name "${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}"
+
+    - name: Build new devcontainer
+      env:
+        DOCKER_BUILDKIT: 1
+      run: |
+        set -e
+
+        USER_UID=$(id -u)
+        USER_GID=$(id -g)
+        TRE_DEPLOYMENT_ACR=${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io
+        echo "TRE_DEPLOYMENT_ACR=$TRE_DEPLOYMENT_ACR" >> "$GITHUB_ENV"
+
+        docker_cache=()
+        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}")
+        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:latest")
+
+        docker build . "${docker_cache[@]}" \
+          -t "tredev:${{ secrets.DEVCONTAINER_TAG }}" -f ".devcontainer/Dockerfile" \
+          --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg USER_UID="${USER_UID}" --build-arg USER_GID="${USER_GID}"
+
+        docker image tag tredev:${{ secrets.DEVCONTAINER_TAG }} \
+          $CI_CACHE_ACR_URI/tredev:${{ secrets.DEVCONTAINER_TAG }}
+
+        docker image push ${{ env.TRE_DEPLOYMENT_ACR }}/tredev:${{ secrets.DEVCONTAINER_TAG }}
+  
+  
