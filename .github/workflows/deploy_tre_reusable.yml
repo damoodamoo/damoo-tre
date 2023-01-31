@@ -442,8 +442,6 @@ jobs:
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
           - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/certs/"}
-          - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/cyclecloud/"}
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/sonatype-nexus-vm/"}
@@ -484,8 +482,6 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/admin-vm/"}
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
-          - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/certs/"}
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/cyclecloud/"}
           - {BUNDLE_TYPE: "shared_service",
