@@ -43,51 +43,14 @@ jobs:
       uses: actions/checkout@v3
       with:
         persist-credentials: false
-    
-    - name: Azure Login to Deployment environment
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: ACR Login to Deployment ACR
-      id: tre_deployment_acr_login
-      run: az acr login --name "${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}"
-
-    - name: Pull Devcontainer
-      env:
-        DOCKER_BUILDKIT: 1
-      run: |
-        set -e
-        docker image pull ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io/tredev:${{ github.run_id }}
-  
-  deploy_management:
-    name: Deploy Management
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
-    needs: [pull_devcontainer]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false
-
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: ACR Login
-      id: ci_cache_cr_login
-      # will fail if this is a new env which is expected
-      continue-on-error: true
-      run: az acr login --name "${{ secrets.CI_CACHE_ACR_NAME }}"
 
     - name: Deploy management
-      uses: ./.github/actions/devcontainer_run_command
+      uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make bootstrap mgmt-deploy"
         DEVCONTAINER_TAG: ${{ github.run_id }}
-        CI_CACHE_ACR_NAME: ${{ secrets.CI_CACHE_ACR_NAME}}
+        TRE_DEPLOYMENT_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME}}
+        TRE_DEPLOYMENT_AZURE_CREDENTIALS: ${{ secrets.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         TRE_ID: "${{ secrets.TRE_ID }}"
         LOCATION: ${{ secrets.LOCATION }}

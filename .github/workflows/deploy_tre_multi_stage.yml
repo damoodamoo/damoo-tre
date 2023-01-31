@@ -141,6 +141,12 @@ jobs:
           CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME}}
           ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
   
+  # some weirdness to note about the workflow_call blocks, deploying to dev and prod
+  # https://github.com/orgs/community/discussions/25238
+  # in the child template (deploy_tre_single_stage), we can only get access to the environment secrets
+  # that are referenced here. So NOTE: the secrets below ARE NOT being passed in to the child template
+  # as it looks. In fact, the child template will pick them up from the appropriate GitHub environment
+  # because they've been referenced here, and are 'allowed' to be used in the child.
   deploy-dev:
     name: "Deploy Dev"
     uses: ./.github/workflows/deploy_tre_single_stage.yml
