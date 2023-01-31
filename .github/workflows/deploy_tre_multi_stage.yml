@@ -53,16 +53,16 @@ jobs:
         echo "TRE_DEPLOYMENT_ACR=$TRE_DEPLOYMENT_ACR" >> "$GITHUB_ENV"
 
         docker_cache=()
-        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}")
-        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:latest")
+        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}")
+        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredeploy:latest")
 
         docker build . "${docker_cache[@]}" \
-          -t "tredev:${{ secrets.DEVCONTAINER_TAG }}" -f ".devcontainer/Dockerfile" \
+          -t "tredeploy:${{ github.run_id }}" -f ".devcontainer/Dockerfile" \
           --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg USER_UID="${USER_UID}" --build-arg USER_GID="${USER_GID}"
 
-        docker image tag tredev:${{ secrets.DEVCONTAINER_TAG }} \
-          $TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}
+        docker image tag tredeploy:${{ github.run_id }} \
+          $TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}
 
-        docker image push $TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}
+        docker image push $TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}
   
   
