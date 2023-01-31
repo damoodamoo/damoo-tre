@@ -117,8 +117,6 @@ jobs:
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
           - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
-          - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
