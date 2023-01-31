@@ -17,7 +17,20 @@ on:  # yamllint disable-line rule:truthy
         description: "Creds for the subscription which contains the deployment ACR"
         required: true
       AZURE_CREDENTIALS:
-        description: ""
+        required: true
+      CI_CACHE_ACR_NAME:
+        required: true
+      TRE_ID:
+        required: true
+      LOCATION:
+        required: true
+      ACR_NAME:
+        required: true
+      TERRAFORM_STATE_CONTAINER_NAME:
+        required: true
+      MGMT_RESOURCE_GROUP_NAME:
+        required: true
+      MGMT_STORAGE_ACCOUNT_NAME:
         required: true
 
 jobs:
