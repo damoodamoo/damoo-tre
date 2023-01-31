@@ -63,6 +63,6 @@ jobs:
         docker image tag tredev:${{ secrets.DEVCONTAINER_TAG }} \
           $TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}
 
-        docker image push ${{ env.TRE_DEPLOYMENT_ACR }}/tredev:${{ secrets.DEVCONTAINER_TAG }}
+        docker image push $TRE_DEPLOYMENT_ACR/tredev:${{ secrets.DEVCONTAINER_TAG }}
   
   
