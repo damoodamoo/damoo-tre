@@ -63,6 +63,6 @@ jobs:
         docker image tag tredeploy:${{ github.run_id }} \
           $TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}
 
-        docker image push $TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}
+        docker image push $TRE_DEPLOYMENT_ACR/tredeploy:${{ github.run_id }}
   
   
