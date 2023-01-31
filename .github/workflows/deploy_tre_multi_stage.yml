@@ -151,9 +151,10 @@ jobs:
     name: "Deploy Dev"
     uses: ./.github/workflows/deploy_tre_single_stage.yml
     needs: [build_devcontainer, build_core_images, publish_bundles]
+    environment: dev
     with:
       environmentName: dev
-    secrets: inherit
+    secrets:
       TRE_DEPLOYMENT_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
       TRE_DEPLOYMENT_AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
