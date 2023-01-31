@@ -49,7 +49,6 @@ jobs:
         USER_UID=$(id -u)
         USER_GID=$(id -g)
         TRE_DEPLOYMENT_ACR=${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io
-        echo "TRE_DEPLOYMENT_ACR=$TRE_DEPLOYMENT_ACR" >> "$GITHUB_ENV"
 
         docker_cache=()
         docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}")
@@ -154,6 +153,6 @@ jobs:
     with:
       environmentName: dev
     secrets:
-      TRE_DEPLOYMENT_ACR: ${{ env.TRE_DEPLOYMENT_ACR }}
+      TRE_DEPLOYMENT_ACR: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io
       TRE_DEPLOYMENT_AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
