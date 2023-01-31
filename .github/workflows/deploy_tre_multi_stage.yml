@@ -61,7 +61,7 @@ jobs:
     # used to build images used by core infrastructure
     name: Build Core Docker Images
     runs-on: ubuntu-latest
-    environment: dev
+    environment: multi
     needs: [build_devcontainer]
     strategy:
       fail-fast: true
