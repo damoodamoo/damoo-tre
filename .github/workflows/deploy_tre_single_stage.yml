@@ -72,7 +72,9 @@ jobs:
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make pull-core-images"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
+        DEVCONTAINER_TAG: ${{ github.run_id }}        
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
