@@ -34,15 +34,99 @@ on:  # yamllint disable-line rule:truthy
         required: true
 
 jobs:
-  pull_devcontainer:
-    name: Pull Devcontainer
-    environment: ${{ inputs.environmentName }}
+  copy_bundles:
+    name: Publish Bundles
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environmentName }}
+    strategy:
+      matrix:
+        include:
+          # shared bundles
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/firewall/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/gitea/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/admin-vm/"}
+          - {BUNDLE_TYPE: "shared_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/airlock_notifier/"}
+          # other default bundles
+          - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
+          - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
+          - {BUNDLE_TYPE: "user_resource",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Publish bundle
+        uses: ./.github/actions/devcontainer_multi_run_command
+        with:
+          COMMAND: "DIR=${{ matrix.BUNDLE_DIR }} make copy-bundle-image"
+          DEVCONTAINER_TAG: ${{ github.run_id }}
+          SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+          SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+
+  copy_core_images:
+    name: Copy Core Images
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environmentName }}
+    strategy:
+      matrix:
+        include:
+          - {IMAGE_NAME: "api",
+             IMAGE_VERSION_FILE: "\\${AZURETRE_HOME}/api_app/_version.py"}
+          - {IMAGE_NAME: "resource-processor-vm-porter",
+             IMAGE_VERSION_FILE: "\\${AZURETRE_HOME}/resource_processor/_version.py"}
+          - {IMAGE_NAME: "airlock-processor",
+             IMAGE_VERSION_FILE: "\\${AZURETRE_HOME}/airlock_processor/_version.py"}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Copy image
+        uses: ./.github/actions/devcontainer_multi_run_command
+        with:
+          COMMAND: "IMAGE_NAME=${{ matrix.IMAGE_NAME }} IMAGE_VERSION_FILE=${{ matrix.IMAGE_VERSION_FILE }} make copy-core-image"
+          DEVCONTAINER_TAG: ${{ github.run_id }}
+          SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+          SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+
+#   pull_devcontainer:
+#     name: Pull Devcontainer
+#     environment: ${{ inputs.environmentName }}
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v3
+#       with:
+#         persist-credentials: false
 
     # - name: Deploy management
     #   uses: ./.github/actions/devcontainer_multi_run_command
@@ -59,61 +143,28 @@ jobs:
     #     MGMT_RESOURCE_GROUP_NAME: "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}"
     #     MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
 
-    # - name: Azure Login to Source
-    #   uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
 
-    # - name: ACR Login to Source
-    #   id: SOURCE_ACR_login
-    #   run: az acr login --name "${{ secrets.SOURCE_ACR_NAME }}"
-
-    - name: Pull core images from Source via Devcontainer
-      uses: ./.github/actions/devcontainer_multi_run_command
-      with:
-        COMMAND: "IMAGE_NAME=api IMAGE_VERSION_FILE=\\${AZURETRE_HOME}/api_app/_version.py make copy-core-image"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
-        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-        ACR_NAME: ${{ secrets.ACR_NAME }}
-
-    - name: Copy Bundle
-      uses: ./.github/actions/devcontainer_multi_run_command
-      with:
-        COMMAND: "DIR=\\${AZURETRE_HOME}/templates/workspace_services/guacamole make copy-bundle-image"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
-        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-        ACR_NAME: ${{ secrets.ACR_NAME }}
-
-    # - name: Set docker socket permission
-    #   run: |
-    #     sudo chgrp docker /var/run/docker.sock
-    #     sudo chmod g+rw /var/run/docker.sock
-
-    # - name: Push core images to target environment ACR via Devcontainer
+    # - name: Pull core images from Source via Devcontainer
     #   uses: ./.github/actions/devcontainer_multi_run_command
     #   with:
-    #     COMMAND: "make push-core-images"
+    #     COMMAND: "IMAGE_NAME=api IMAGE_VERSION_FILE=\\${AZURETRE_HOME}/api_app/_version.py make copy-core-image"
     #     DEVCONTAINER_TAG: ${{ github.run_id }}
     #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
     #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
     #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
     #     ACR_NAME: ${{ secrets.ACR_NAME }}
 
-    # - name: Pull core images from source
-    #   run: |
-    #     set -e
+    # - name: Copy Bundle
+    #   uses: ./.github/actions/devcontainer_multi_run_command
+    #   with:
+    #     COMMAND: "DIR=\\${AZURETRE_HOME}/templates/workspace_services/guacamole make copy-bundle-image"
+    #     DEVCONTAINER_TAG: ${{ github.run_id }}
+    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    #     ACR_NAME: ${{ secrets.ACR_NAME }}
 
-    #     API_VERSION=$(source <(grep = "${AZURETRE_HOME}/api_app/_version.py" | sed 's/ *= */=/g'))
-    #     echo "API VERSION: ${API_VERSION}"
-    #     docker image pull ${{ env.SOURCE_ACR_NAME }}.azurecr.io/microsoft/azuretre/api:${API_VERSION}
 
-
-
-   #     exit 1
 
     # - name: Start TRE
     #   uses: ./.github/actions/devcontainer_multi_run_command
