@@ -16,7 +16,7 @@ $(call target_title, "Pulling $(1) Image") \
 && docker pull "${FULL_IMAGE_NAME_PREFIX}/$(1):$${__version__}"
 endef
 
-define push_image_2
+define push_images_2
 $(call target_title, "Pushing $(1) Image") \
 && . ${MAKEFILE_DIR}/devops/scripts/check_dependencies.sh env \
 && . ${MAKEFILE_DIR}/devops/scripts/set_docker_sock_permission.sh \
