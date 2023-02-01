@@ -18,8 +18,6 @@ on:  # yamllint disable-line rule:truthy
         required: true
       AZURE_CREDENTIALS:
         required: true
-      CI_CACHE_ACR_NAME:
-        required: true
       TRE_ID:
         required: true
       LOCATION:
@@ -34,10 +32,37 @@ on:  # yamllint disable-line rule:truthy
         required: true
 
 jobs:
+  deploy_management:
+    name: Deploy Management
+    environment: ${{ inputs.environmentName }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+
+    - name: Deploy management
+      uses: ./.github/actions/devcontainer_multi_run_command
+      with:
+        COMMAND: "make bootstrap mgmt-deploy"
+        DEVCONTAINER_TAG: ${{ github.run_id }}
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        TRE_ID: "${{ secrets.TRE_ID }}"
+        LOCATION: ${{ secrets.LOCATION }}
+        ACR_NAME: ${{ secrets.ACR_NAME }}
+        TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
+        MGMT_RESOURCE_GROUP_NAME: "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}"
+        MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
+
+
   copy_bundles:
-    name: Publish Bundles
+    name: Copy Bundles
     runs-on: ubuntu-latest
     environment: ${{ inputs.environmentName }}
+    needs: [deploy_management]
     strategy:
       matrix:
         include:
@@ -79,7 +104,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Publish bundle
+      - name: Copy bundle
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "DIR=${{ matrix.BUNDLE_DIR }} make copy-bundle-image"
@@ -93,6 +118,7 @@ jobs:
     name: Copy Core Images
     runs-on: ubuntu-latest
     environment: ${{ inputs.environmentName }}
+    needs: [deploy_management]
     strategy:
       matrix:
         include:
@@ -118,87 +144,45 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           ACR_NAME: ${{ secrets.ACR_NAME }}
 
-#   pull_devcontainer:
-#     name: Pull Devcontainer
-#     environment: ${{ inputs.environmentName }}
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v3
-#       with:
-#         persist-credentials: false
+  deploy_tre:
+    name: Deploy TRE
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environmentName }}
+    needs: [copy_bundles, copy_core_images]
+    steps:
+    - name: Start TRE
+      uses: ./.github/actions/devcontainer_multi_run_command
+      with:
+        COMMAND: "make tre-start"
+        DEVCONTAINER_TAG: ${{ github.run_id }}
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        TRE_ID: "${{ secrets.TRE_ID }}"
 
-    # - name: Deploy management
-    #   uses: ./.github/actions/devcontainer_multi_run_command
-    #   with:
-    #     COMMAND: "make bootstrap mgmt-deploy"
-    #     DEVCONTAINER_TAG: ${{ github.run_id }}
-    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #     TRE_ID: "${{ secrets.TRE_ID }}"
-    #     LOCATION: ${{ secrets.LOCATION }}
-    #     ACR_NAME: ${{ secrets.ACR_NAME }}
-    #     TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
-    #     MGMT_RESOURCE_GROUP_NAME: "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}"
-    #     MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
-
-
-    # - name: Pull core images from Source via Devcontainer
-    #   uses: ./.github/actions/devcontainer_multi_run_command
-    #   with:
-    #     COMMAND: "IMAGE_NAME=api IMAGE_VERSION_FILE=\\${AZURETRE_HOME}/api_app/_version.py make copy-core-image"
-    #     DEVCONTAINER_TAG: ${{ github.run_id }}
-    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #     ACR_NAME: ${{ secrets.ACR_NAME }}
-
-    # - name: Copy Bundle
-    #   uses: ./.github/actions/devcontainer_multi_run_command
-    #   with:
-    #     COMMAND: "DIR=\\${AZURETRE_HOME}/templates/workspace_services/guacamole make copy-bundle-image"
-    #     DEVCONTAINER_TAG: ${{ github.run_id }}
-    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #     ACR_NAME: ${{ secrets.ACR_NAME }}
-
-
-
-    # - name: Start TRE
-    #   uses: ./.github/actions/devcontainer_multi_run_command
-    #   with:
-    #     COMMAND: "make tre-start"
-    #     DEVCONTAINER_TAG: ${{ github.run_id }}
-    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #     TRE_ID: "${{ secrets.TRE_ID }}"
-
-    # - name: Deploy TRE Core
-    #   uses: ./.github/actions/devcontainer_multi_run_command
-    #   with:
-    #     COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
-    #     DEVCONTAINER_TAG: ${{ github.run_id }}
-    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #     API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
-    #     AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-    #     TRE_ID: "${{ secrets.TRE_ID }}"
-    #     LOCATION: ${{ secrets.LOCATION }}
-    #     ACR_NAME: ${{ secrets.ACR_NAME }}
-    #     TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
-    #     MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
-    #     MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
-    #     CORE_ADDRESS_SPACE: ${{ secrets.CORE_ADDRESS_SPACE }}
-    #     TRE_ADDRESS_SPACE: ${{ secrets.TRE_ADDRESS_SPACE }}
-    #     ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
-    #     SWAGGER_UI_CLIENT_ID: "${{ secrets.SWAGGER_UI_CLIENT_ID }}"
-    #     API_CLIENT_SECRET: "${{ secrets.API_CLIENT_SECRET }}"
-    #     APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
-    #     APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
-    #     STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
-    #     CORE_APP_SERVICE_PLAN_SKU: ${{ secrets.CORE_APP_SERVICE_PLAN_SKU }}
-    #     RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ secrets.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
+    - name: Deploy TRE Core
+      uses: ./.github/actions/devcontainer_multi_run_command
+      with:
+        COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
+        DEVCONTAINER_TAG: ${{ github.run_id }}
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
+        AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
+        TRE_ID: "${{ secrets.TRE_ID }}"
+        LOCATION: ${{ secrets.LOCATION }}
+        ACR_NAME: ${{ secrets.ACR_NAME }}
+        TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
+        MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
+        MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
+        CORE_ADDRESS_SPACE: ${{ secrets.CORE_ADDRESS_SPACE }}
+        TRE_ADDRESS_SPACE: ${{ secrets.TRE_ADDRESS_SPACE }}
+        ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
+        SWAGGER_UI_CLIENT_ID: "${{ secrets.SWAGGER_UI_CLIENT_ID }}"
+        API_CLIENT_SECRET: "${{ secrets.API_CLIENT_SECRET }}"
+        APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
+        APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
+        STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
+        CORE_APP_SERVICE_PLAN_SKU: ${{ secrets.CORE_APP_SERVICE_PLAN_SKU }}
+        RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ secrets.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
