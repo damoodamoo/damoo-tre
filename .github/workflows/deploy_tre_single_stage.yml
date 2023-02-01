@@ -68,7 +68,7 @@ jobs:
     #   id: SOURCE_ACR_login
     #   run: az acr login --name "${{ secrets.SOURCE_ACR_NAME }}"
 
-    - name: Pull core images via Devcontainer
+    - name: Pull core images from Source via Devcontainer
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make pull-core-images"
@@ -78,6 +78,15 @@ jobs:
         AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
+    - name: Push core images to environment ACR via Devcontainer
+      uses: ./.github/actions/devcontainer_multi_run_command
+      with:
+        COMMAND: "make push-api-image"
+        DEVCONTAINER_TAG: ${{ github.run_id }}        
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        ACR_NAME: ${{ secrets.ACR_NAME }}
 
   #  - name: Pull core images from source
   #    run: |
