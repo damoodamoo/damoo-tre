@@ -12,7 +12,6 @@ $(call target_title, "Pulling $(1) Image") \
 && . ${AZURETRE_HOME}/devops/scripts/check_dependencies.sh env \
 && . ${AZURETRE_HOME}/devops/scripts/set_docker_sock_permission.sh \
 && source <(grep = $(2) | sed 's/ *= */=/g') \
-&& az login --service-principal -u $${ARM_CLIENT_ID} -p $${ARM_CLIENT_SECRET} --tenant $${ARM_TENANT_ID}
 && az acr login -n $${ACR_NAME} \
 && docker pull "${FULL_IMAGE_NAME_PREFIX}/$(1):$${__version__}"
 endef
