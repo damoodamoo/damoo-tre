@@ -88,32 +88,29 @@ jobs:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         TRE_ID: "${{ secrets.TRE_ID }}"
 
-     - name: Deploy TRE Core
-        uses: ./.github/actions/devcontainer_multi_run_command
-        with:
-          COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
-          DEVCONTAINER_TAG: ${{ guthub.run_id }}
-          SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-          SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
-          AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TRE_ID: "${{ secrets.TRE_ID }}"
-          LOCATION: ${{ secrets.LOCATION }}
-          ACR_NAME: ${{ secrets.ACR_NAME }}
-          TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
-          MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
-          MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
-          CORE_ADDRESS_SPACE: ${{ secrets.CORE_ADDRESS_SPACE }}
-          TRE_ADDRESS_SPACE: ${{ secrets.TRE_ADDRESS_SPACE }}
-          ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
-          SWAGGER_UI_CLIENT_ID: "${{ secrets.SWAGGER_UI_CLIENT_ID }}"
-          API_CLIENT_SECRET: "${{ secrets.API_CLIENT_SECRET }}"
-          APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
-          APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
-          STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
-          CORE_APP_SERVICE_PLAN_SKU: ${{ secrets.CORE_APP_SERVICE_PLAN_SKU }}
-          RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ secrets.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
-
-  
-  
+    - name: Deploy TRE Core
+      uses: ./.github/actions/devcontainer_multi_run_command
+      with:
+        COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
+        DEVCONTAINER_TAG: ${{ guthub.run_id }}
+        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
+        AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
+        TRE_ID: "${{ secrets.TRE_ID }}"
+        LOCATION: ${{ secrets.LOCATION }}
+        ACR_NAME: ${{ secrets.ACR_NAME }}
+        TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
+        MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
+        MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
+        CORE_ADDRESS_SPACE: ${{ secrets.CORE_ADDRESS_SPACE }}
+        TRE_ADDRESS_SPACE: ${{ secrets.TRE_ADDRESS_SPACE }}
+        ENABLE_SWAGGER: ${{ secrets.ENABLE_SWAGGER }}
+        SWAGGER_UI_CLIENT_ID: "${{ secrets.SWAGGER_UI_CLIENT_ID }}"
+        API_CLIENT_SECRET: "${{ secrets.API_CLIENT_SECRET }}"
+        APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
+        APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
+        STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
+        CORE_APP_SERVICE_PLAN_SKU: ${{ secrets.CORE_APP_SERVICE_PLAN_SKU }}
+        RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ secrets.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
