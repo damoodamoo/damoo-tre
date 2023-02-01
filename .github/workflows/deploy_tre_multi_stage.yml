@@ -83,16 +83,16 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
-  publish_bundles:
-    name: Publish Bundles
-    runs-on: ubuntu-latest
-    needs: [build_devcontainer]
-    strategy:
-      matrix:
-        include:
-          # shared bundles
-          - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/firewall/"}
+  # publish_bundles:
+  #   name: Publish Bundles
+  #   runs-on: ubuntu-latest
+  #   needs: [build_devcontainer]
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         # shared bundles
+  #         - {BUNDLE_TYPE: "shared_service",
+  #            BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/firewall/"}
           # - {BUNDLE_TYPE: "shared_service",
           #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/gitea/"}
           # - {BUNDLE_TYPE: "shared_service",
@@ -122,24 +122,24 @@ jobs:
           #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
           # - {BUNDLE_TYPE: "user_resource",
           #    BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
-    environment: dev
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          persist-credentials: false
+    # environment: dev
+    # steps:
+    #   - name: Checkout
+    #     uses: actions/checkout@v3
+    #     with:
+    #       persist-credentials: false
 
-      - name: Publish bundle
-        uses: ./.github/actions/devcontainer_run_command
-        with:
-          # Although porter publish will build automatically, our makefile build target includes logic that should run
-          COMMAND: >-
-            for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
-            && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
-          DEVCONTAINER_TAG: ${{ github.run_id }}
-          AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-          CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-          ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
+    #   - name: Publish bundle
+    #     uses: ./.github/actions/devcontainer_run_command
+    #     with:
+    #       # Although porter publish will build automatically, our makefile build target includes logic that should run
+    #       COMMAND: >-
+    #         for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
+    #         && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
+    #       DEVCONTAINER_TAG: ${{ github.run_id }}
+    #       AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+    #       CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+    #       ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
   
   # some weirdness to note about the workflow_call blocks, deploying to dev and prod
   # https://github.com/orgs/community/discussions/25238
