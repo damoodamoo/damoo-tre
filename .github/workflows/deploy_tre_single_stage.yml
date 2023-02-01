@@ -78,7 +78,12 @@ jobs:
         AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
-    - name: Push core images to environment ACR via Devcontainer
+    - name: Set docker socket permission
+      run: |
+        sudo chgrp docker /var/run/docker.sock
+        sudo chmod g+rw /var/run/docker.sock
+
+    - name: Push core images to target environment ACR via Devcontainer
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make push-api-image"
