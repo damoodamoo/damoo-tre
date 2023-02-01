@@ -9,7 +9,7 @@ on:  # yamllint disable-line rule:truthy
 # We should NOT cancel in progress runs as that can destabilize the environment.
 concurrency: "${{ github.workflow }}-${{ github.ref }}"
 
-# TODO: bootstrap a new ACR. Using a manual one for now. 
+# TODO: bootstrap a new ACR. Using a manual one for now.
 
 jobs:
   build_devcontainer:
@@ -24,7 +24,7 @@ jobs:
 
     - name: Set up Docker BuildKit
       uses: docker/setup-buildx-action@v2
-    
+
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -140,7 +140,7 @@ jobs:
     #       AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
     #       CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
     #       ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
-  
+
   # some weirdness to note about the workflow_call blocks, deploying to dev and prod
   # https://github.com/orgs/community/discussions/25238
   # in the child template (deploy_tre_single_stage), we can only get access to the environment secrets
@@ -150,7 +150,7 @@ jobs:
   deploy-dev:
     name: "Deploy Dev"
     uses: ./.github/workflows/deploy_tre_single_stage.yml
-    needs: [build_devcontainer, build_core_images, publish_bundles]
+    needs: [build_devcontainer, build_core_images]
     with:
       environmentName: dev
     secrets:
@@ -164,4 +164,3 @@ jobs:
       TERRAFORM_STATE_CONTAINER_NAME: ${{ secrets.TERRAFORM_STATE_CONTAINER_NAME }}
       MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
       MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
-  
