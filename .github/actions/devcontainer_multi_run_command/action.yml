@@ -149,6 +149,10 @@ runs:
           -e ARM_CLIENT_SECRET="${{ fromJSON(inputs.AZURE_CREDENTIALS).clientSecret }}" \
           -e ARM_TENANT_ID="${{ fromJSON(inputs.AZURE_CREDENTIALS).tenantId }}" \
           -e ARM_SUBSCRIPTION_ID="${{ fromJSON(inputs.AZURE_CREDENTIALS).subscriptionId }}" \
+          -e SOURCE_ARM_CLIENT_ID="${{ fromJSON(inputs.SOURCE_AZURE_CREDENTIALS).clientId }}" \
+          -e SOURCE_ARM_CLIENT_SECRET="${{ fromJSON(inputs.SOURCE_AZURE_CREDENTIALS).clientSecret }}" \
+          -e SOURCE_ARM_TENANT_ID="${{ fromJSON(inputs.SOURCE_AZURE_CREDENTIALS).tenantId }}" \
+          -e SOURCE_ARM_SUBSCRIPTION_ID="${{ fromJSON(inputs.SOURCE_AZURE_CREDENTIALS).subscriptionId }}" \
           -e TF_VAR_terraform_state_container_name="${{ (inputs.TERRAFORM_STATE_CONTAINER_NAME != ''
             && inputs.TERRAFORM_STATE_CONTAINER_NAME) || 'tfstate' }}" \
           -e TF_VAR_mgmt_storage_account_name="${{ inputs.MGMT_STORAGE_ACCOUNT_NAME }}" \

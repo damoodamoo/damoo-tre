@@ -71,35 +71,35 @@ jobs:
     - name: Pull core images from Source via Devcontainer
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
-        COMMAND: "make pull-core-images"
-        DEVCONTAINER_TAG: ${{ github.run_id }}        
-        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-        AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-        ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
-
-    - name: Set docker socket permission
-      run: |
-        sudo chgrp docker /var/run/docker.sock
-        sudo chmod g+rw /var/run/docker.sock
-
-    - name: Push core images to target environment ACR via Devcontainer
-      uses: ./.github/actions/devcontainer_multi_run_command
-      with:
-        COMMAND: "make push-core-images"
+        COMMAND: "make copy-core-images"
         DEVCONTAINER_TAG: ${{ github.run_id }}        
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         ACR_NAME: ${{ secrets.ACR_NAME }}
 
-  #  - name: Pull core images from source
-  #    run: |
-  #      set -e
+    # - name: Set docker socket permission
+    #   run: |
+    #     sudo chgrp docker /var/run/docker.sock
+    #     sudo chmod g+rw /var/run/docker.sock
 
-       # API_VERSION=$(source <(grep = "${AZURETRE_HOME}/api_app/_version.py" | sed 's/ *= */=/g'))
-       # echo "API VERSION: ${API_VERSION}"
-       # docker image pull ${{ env.SOURCE_ACR_NAME }}.azurecr.io/microsoft/azuretre/api:${API_VERSION}
+    # - name: Push core images to target environment ACR via Devcontainer
+    #   uses: ./.github/actions/devcontainer_multi_run_command
+    #   with:
+    #     COMMAND: "make push-core-images"
+    #     DEVCONTAINER_TAG: ${{ github.run_id }}        
+    #     SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+    #     SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    #     ACR_NAME: ${{ secrets.ACR_NAME }}
+
+    # - name: Pull core images from source
+    #   run: |
+    #     set -e
+
+    #     API_VERSION=$(source <(grep = "${AZURETRE_HOME}/api_app/_version.py" | sed 's/ *= */=/g'))
+    #     echo "API VERSION: ${API_VERSION}"
+    #     docker image pull ${{ env.SOURCE_ACR_NAME }}.azurecr.io/microsoft/azuretre/api:${API_VERSION}
 
 
 
