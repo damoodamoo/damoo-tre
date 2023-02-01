@@ -10,7 +10,7 @@ define login_acr
 $(call target_title, "Logging into $(1) ACR") \
 && az login --service-principal -u $(2) -p $(3) --tenant $(4) \
 && az account set -s $(5) \
-&& az acr login -n $(6) \
+&& az acr login -n $(6)
 endef
 
 define pull_image_to_devcontainer
