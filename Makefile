@@ -26,10 +26,10 @@ $(call target_title, "Pushing $(1) Image") \
 endef
 
 copy-core-images:
-	$(call login_acr,"Source",${SOURCE_ARM_CLIENT_ID},${SOURCE_ARM_CLIENT_SECRET}, ${SOURCE_ARM_TENANT_ID}, ${SOURCE_ARM_SUBSCRIPTION}, ${SOURCE_ACR_NAME})
+	$(call login_acr,"Source",${SOURCE_ARM_CLIENT_ID},${SOURCE_ARM_CLIENT_SECRET}, ${SOURCE_ARM_TENANT_ID}, ${SOURCE_ARM_SUBSCRIPTION_ID}, ${SOURCE_ACR_NAME})
 	$(call pull_image_to_devcontainer,"api","${AZURETRE_HOME}/api_app/_version.py")
 
-	$(call login_acr,"Target",${ARM_CLIENT_ID},${ARM_CLIENT_SECRET}, ${ARM_TENANT_ID}, ${ARM_SUBSCRIPTION}, ${ACR_NAME})
+	$(call login_acr,"Target",${ARM_CLIENT_ID},${ARM_CLIENT_SECRET}, ${ARM_TENANT_ID}, ${ARM_SUBSCRIPTION_ID}, ${ACR_NAME})
 	$(call push_image_from_devcontainer,"api","${AZURETRE_HOME}/api_app/_version.py")
 
 pull-core-images:
