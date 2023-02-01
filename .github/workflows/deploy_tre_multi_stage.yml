@@ -28,11 +28,11 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
+        creds: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
 
     - name: ACR Login
-      id: tre_deployment_acr_login
-      run: az acr login --name "${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}"
+      id: SOURCE_ACR_login
+      run: az acr login --name "${{ secrets.SOURCE_ACR_NAME }}"
 
     - name: Build new devcontainer
       env:
@@ -42,20 +42,20 @@ jobs:
 
         USER_UID=$(id -u)
         USER_GID=$(id -g)
-        TRE_DEPLOYMENT_ACR=${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io
+        SOURCE_ACR=${{ secrets.SOURCE_ACR_NAME }}.azurecr.io
 
         docker_cache=()
-        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}")
-        docker_cache+=(--cache-from "$TRE_DEPLOYMENT_ACR/tredev:latest")
+        docker_cache+=(--cache-from "$SOURCE_ACR/tredev:${{ github.run_id }}")
+        docker_cache+=(--cache-from "$SOURCE_ACR/tredev:latest")
 
         docker build . "${docker_cache[@]}" \
           -t "tredev:${{ github.run_id }}" -f ".devcontainer/Dockerfile" \
           --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg USER_UID="${USER_UID}" --build-arg USER_GID="${USER_GID}"
 
         docker image tag tredev:${{ github.run_id }} \
-          $TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}
+          $SOURCE_ACR/tredev:${{ github.run_id }}
 
-        docker image push $TRE_DEPLOYMENT_ACR/tredev:${{ github.run_id }}
+        docker image push $SOURCE_ACR/tredev:${{ github.run_id }}
 
   build_core_images:
     # used to build images used by core infrastructure
@@ -79,9 +79,9 @@ jobs:
         with:
           COMMAND: "make ${{ matrix.target }}"
           DEVCONTAINER_TAG: ${{ github.run_id }}
-          CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
-          AZURE_CREDENTIALS: ${{ secrets.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
-          ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
+          CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
+          AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+          ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
   publish_bundles:
     name: Publish Bundles
@@ -137,9 +137,9 @@ jobs:
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ github.run_id }}
-          AZURE_CREDENTIALS: ${{ secrets.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
-          CI_CACHE_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME}}
-          ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
+          AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+          CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
+          ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
   
   # some weirdness to note about the workflow_call blocks, deploying to dev and prod
   # https://github.com/orgs/community/discussions/25238
@@ -154,8 +154,8 @@ jobs:
     with:
       environmentName: dev
     secrets:
-      TRE_DEPLOYMENT_ACR_NAME: ${{ secrets.TRE_DEPLOYMENT_ACR_NAME }}
-      TRE_DEPLOYMENT_AZURE_CREDENTIALS: ${{ secrets.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
+      SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
+      SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       CI_CACHE_ACR_NAME: ${{ secrets.CI_CACHE_ACR_NAME }}
       TRE_ID: ${{ secrets.TRE_ID }}

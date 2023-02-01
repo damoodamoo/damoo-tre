@@ -5,10 +5,10 @@ inputs:
   COMMAND:
     description: "The command you want to run in the Devcontainer."
     required: true
-  TRE_DEPLOYMENT_ACR_NAME: 
+  SOURCE_ACR_NAME: 
     description: "The ACR containing the dev container to pull from"
     required: true
-  TRE_DEPLOYMENT_AZURE_CREDENTIALS:
+  SOURCE_AZURE_CREDENTIALS:
     description: "Azure creds for the Azure subscription containing the dev container ACR"
     required: true
   DEVCONTAINER_TAG:
@@ -96,6 +96,10 @@ inputs:
     description: "If False, Airlock requests will skip the malware scanning stage."
     required: false
     default: "false"
+  CI_CACHE_ACR_NAME:
+    description: "A secondary ACR used for caching in CI environments"
+    required: true
+    default: ""
   TF_LOG:
     description: "Log level for terraform - values are blank | DEBUG | TRACE"
     required: false
@@ -118,12 +122,12 @@ runs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ inputs.TRE_DEPLOYMENT_AZURE_CREDENTIALS }}
+        creds: ${{ inputs.SOURCE_AZURE_CREDENTIALS }}
 
     - name: ACR Login
       shell: bash
       run: |
-        az acr login --name "${{ inputs.TRE_DEPLOYMENT_ACR_NAME }}"
+        az acr login --name "${{ inputs.SOURCE_ACR_NAME }}"
 
     - name: Run command in DevContainer
       shell: bash
@@ -175,12 +179,12 @@ runs:
           -e DOCKER_BUILDKIT=1 \
           -e TF_VAR_stateful_resources_locked=${{ inputs.STATEFUL_RESOURCES_LOCKED }} \
           -e TF_VAR_enable_airlock_malware_scanning=${{ inputs.ENABLE_AIRLOCK_MALWARE_SCANNING }} \
-          -e CI_CACHE_ACR_NAME="${{ inputs.TRE_DEPLOYMENT_ACR_NAME }}" \
+          -e CI_CACHE_ACR_NAME="${{ inputs.SOURCE_ACR_NAME }}" \
           -e TF_VAR_core_app_service_plan_sku="${{ (inputs.CORE_APP_SERVICE_PLAN_SKU != ''
             && inputs.CORE_APP_SERVICE_PLAN_SKU) || 'P1v2' }}" \
           -e WORKSPACE_APP_SERVICE_PLAN_SKU="${{ (inputs.WORKSPACE_APP_SERVICE_PLAN_SKU != ''
             && inputs.WORKSPACE_APP_SERVICE_PLAN_SKU) || 'P1v2' }}" \
           -e TF_VAR_resource_processor_number_processes_per_instance="${{ (inputs.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE != ''
             && inputs.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE) || 5  }}" \
-          '${{ inputs.TRE_DEPLOYMENT_ACR_NAME }}.azurecr.io/tredev:${{ inputs.DEVCONTAINER_TAG }}' \
+          '${{ inputs.SOURCE_ACR_NAME }}.azurecr.io/tredev:${{ inputs.DEVCONTAINER_TAG }}' \
         bash -c "${{ inputs.COMMAND }}"
