@@ -16,13 +16,13 @@ endef
 define pull_image_to_devcontainer
 $(call target_title, "Pulling $(1) Image") \
 && source <(grep = $(2) | sed 's/ *= */=/g') \
-&& docker pull "$(3).azurecr.io/${IMAGE_NAME_PREFIX_NAME}/$(1):$${__version__}"
+&& docker pull "$(3).azurecr.io/${IMAGE_NAME_PREFIX}/$(1):$${__version__}"
 endef
 
 define push_image_from_devcontainer
 $(call target_title, "Pushing $(1) Image") \
 && source <(grep = $(2) | sed 's/ *= */=/g') \
-&& docker push "$(3).azurecr.io/${IMAGE_NAME_PREFIX_NAME}/$(1):$${__version__}"
+&& docker push "$(3).azurecr.io/${IMAGE_NAME_PREFIX}/$(1):$${__version__}"
 endef
 
 copy-core-images:
