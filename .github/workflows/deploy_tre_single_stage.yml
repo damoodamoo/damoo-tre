@@ -59,24 +59,22 @@ jobs:
     #     MGMT_RESOURCE_GROUP_NAME: "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}"
     #     MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
     
-    - name: Azure Login to Source
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+    # - name: Azure Login to Source
+    #   uses: azure/login@v1
+    #   with:
+    #     creds: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
 
-    - name: ACR Login to Source
-      id: SOURCE_ACR_login
-      run: az acr login --name "${{ secrets.SOURCE_ACR_NAME }}"
+    # - name: ACR Login to Source
+    #   id: SOURCE_ACR_login
+    #   run: az acr login --name "${{ secrets.SOURCE_ACR_NAME }}"
 
     - name: Pull core images via Devcontainer
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
-        COMMAND: "make copy-api-image"
+        COMMAND: "make pull-core-images"
         DEVCONTAINER_TAG: ${{ github.run_id }}
-        SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
-        SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
-        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-        ACR_NAME: ${{ secrets.ACR_NAME }}
+        AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
+        ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
 
 
   #  - name: Pull core images from source
