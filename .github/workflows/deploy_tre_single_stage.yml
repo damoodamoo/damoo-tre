@@ -92,7 +92,7 @@ jobs:
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
-        DEVCONTAINER_TAG: ${{ guthub.run_id }}
+        DEVCONTAINER_TAG: ${{ github.run_id }}
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
