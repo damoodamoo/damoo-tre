@@ -72,7 +72,7 @@ jobs:
       run: |
         set -e
 
-        API_VERSION=$(source <(grep = "${AZURETRE_HOME}/api_app/_version.py | sed 's/ *= */=/g')
+        API_VERSION=$(source <(grep = "${AZURETRE_HOME}/api_app/_version.py" | sed 's/ *= */=/g')
         echo "API VERSION: ${API_VERSION}"
         docker image pull ${{ env.SOURCE_ACR_NAME }}.azurecr.io/microsoft/azuretre/api:${API_VERSION}
 
