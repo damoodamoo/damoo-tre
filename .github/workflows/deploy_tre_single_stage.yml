@@ -228,7 +228,7 @@ jobs:
     name: Register Bundles
     runs-on: ubuntu-latest
     environment: ${{ inputs.environmentName }}
-    needs: [publish_bundles, deploy_tre]
+    needs: [copy_bundles, deploy_tre]
     strategy:
       matrix:
         include:
@@ -341,7 +341,7 @@ jobs:
   deploy_shared_services:
     name: Deploy Firewall
     runs-on: ubuntu-latest
-    needs: [register_shared_bundles]
+    needs: [register_bundles]
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
