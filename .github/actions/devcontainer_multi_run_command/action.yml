@@ -5,7 +5,7 @@ inputs:
   COMMAND:
     description: "The command you want to run in the Devcontainer."
     required: true
-  SOURCE_ACR_NAME: 
+  SOURCE_ACR_NAME:
     description: "The ACR containing the dev container to pull from"
     required: true
   SOURCE_AZURE_CREDENTIALS:
@@ -22,9 +22,6 @@ inputs:
     required: false
   AAD_TENANT_ID:
     description: "The Tenant Id where the App is registered and the Test User is registered for the E2E Tests."
-    required: false
-  TEST_APP_ID:
-    description: "The Test Application Id used to interact with the API."
     required: false
   TEST_ACCOUNT_CLIENT_ID:
     description: "The Test Automation Account Client Id used to interact with the API."
@@ -176,7 +173,6 @@ runs:
           -e TRE_URL="https://${{inputs.TRE_ID}}.${{inputs.LOCATION}}.cloudapp.azure.com" \
           -e TEST_WORKSPACE_APP_ID="${{ inputs.TEST_WORKSPACE_APP_ID }}" \
           -e TEST_WORKSPACE_APP_SECRET="${{ inputs.TEST_WORKSPACE_APP_SECRET }}" \
-          -e TEST_APP_ID="${{ inputs.TEST_APP_ID }}" \
           -e TEST_ACCOUNT_CLIENT_ID="${{ inputs.TEST_ACCOUNT_CLIENT_ID }}" \
           -e TEST_ACCOUNT_CLIENT_SECRET="${{ inputs.TEST_ACCOUNT_CLIENT_SECRET }}" \
           -e IS_API_SECURED=${{ inputs.IS_API_SECURED }} \
