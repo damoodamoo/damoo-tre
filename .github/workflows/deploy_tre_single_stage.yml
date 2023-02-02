@@ -57,7 +57,6 @@ jobs:
         MGMT_RESOURCE_GROUP_NAME: "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}"
         MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
 
-
   copy_bundles:
     name: Copy Bundles
     runs-on: ubuntu-latest
@@ -150,6 +149,11 @@ jobs:
     environment: ${{ inputs.environmentName }}
     needs: [copy_bundles, copy_core_images]
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+
     - name: Start TRE
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
