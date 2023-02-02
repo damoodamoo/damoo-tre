@@ -30,6 +30,28 @@ on:  # yamllint disable-line rule:truthy
         required: true
       MGMT_STORAGE_ACCOUNT_NAME:
         required: true
+      API_CLIENT_ID:
+        required: true
+      AAD_TENANT_ID:
+        required: true
+      CORE_ADDRESS_SPACE:
+        required: true
+      TRE_ADDRESS_SPACE:
+        required: true
+      ENABLE_SWAGGER:
+        required: true
+      SWAGGER_UI_CLIENT_ID:
+        required: true
+      API_CLIENT_SECRET:
+        required: true
+      APPLICATION_ADMIN_CLIENT_ID:
+        required: true
+      APPLICATION_ADMIN_CLIENT_SECRET:
+        required: true
+      CORE_APP_SERVICE_PLAN_SKU:
+        required: true
+      RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE:
+        required: true
 
 jobs:
   deploy_management:
