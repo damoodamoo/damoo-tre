@@ -260,14 +260,6 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
-          - {BUNDLE_TYPE: "user_resource",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
