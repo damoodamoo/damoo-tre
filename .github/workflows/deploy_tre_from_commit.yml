@@ -34,8 +34,8 @@ jobs:
       run: |
         SHA_IN_ENV_BRANCH=$(git branch --contains "${{ inputs.commit_sha }}" | grep -w "${{ inputs.environment }}")
         echo "SHA_IN_ENV_BRANCH=$SHA_IN_ENV_BRANCH" >> "$GITHUB_ENV"
-        echo "${SHA_IN_ENV_BRANCH}"
-        [[ -z ${SHA_IN_ENV_BRANCH} ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
+        echo "${{ env.SHA_IN_ENV_BRANCH }}"
+        [[ -z ${{ env.SHA_IN_ENV_BRANCH }} ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
