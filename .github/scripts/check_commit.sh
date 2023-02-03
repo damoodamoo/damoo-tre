@@ -10,11 +10,13 @@ COMMIT_SHA="${1}"
 ENVIRONMENT="${2}"
 echo "11"
 
-git branch
+git --version
 echo "14"
 
 git config user.name "GitHub Actions Bot"
 git config user.email "<>"
+
+git fetch
 
 git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
 
