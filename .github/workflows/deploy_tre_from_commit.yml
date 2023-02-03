@@ -20,11 +20,10 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
+    - name: Checkout main
       uses: actions/checkout@v3
       with:
         persist-credentials: false
-        ref: ${{ inputs.environment }}
         fetch-depth: 0
 
       # git branch --contains ${{inputs.commit_sha}} returns a list of all branches in the repo containing
@@ -32,10 +31,14 @@ jobs:
       # if so - it's approved for that environment, and we continue. if not, we fail out.
     - name: Check Commit is in ${{inputs.environment}} Branch
       run: |
-        echo ${{ github.workspace }}
-        cd ${{ github.workspace }}
-        ls -a
-        bash ${{ github.workspace }}/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
+        bash ${{ github.workspace }}/.github/scripts/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
+
+    - name: Checkout ${{ inputs.commit_sha }}
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+        ref: ${{ inputs.commit_sha }}
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
