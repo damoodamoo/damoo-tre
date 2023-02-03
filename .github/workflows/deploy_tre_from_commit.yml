@@ -32,7 +32,7 @@ jobs:
       # if so - it's approved for that environment, and we continue. if not, we fail out.
     - name: Check Commit is in ${{inputs.environment}} Branch
       run: |
-        ./.github/scripts/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
+        bash ${GITHUB_WORKSPACE}/scripts/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
