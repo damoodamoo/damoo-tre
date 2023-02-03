@@ -10,10 +10,12 @@ COMMIT_SHA="${1}"
 ENVIRONMENT="${2}"
 echo "11"
 
-git branch --contains "${COMMIT_SHA}"
+git branch
+echo "14"
+git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
 
 SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
-echo "14"
+echo "18"
 echo "${SHA_IN_ENV_BRANCH}"
 
 if [[ -z "${SHA_IN_ENV_BRANCH}" ]] ; then
