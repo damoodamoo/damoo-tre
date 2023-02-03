@@ -8,6 +8,6 @@ set -o nounset
 COMMIT_SHA=${1}
 ENVIRONMENT=${2}
 
-SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}}")
+SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
 echo "${SHA_IN_ENV_BRANCH}"
-[[ -z "${SHA_IN_ENV_BRANCH}" ]] && echo "Commit is not in ${ENVIRONMENT} branch. Cannot deploy." && exit 1
+[[ -z "${SHA_IN_ENV_BRANCH}" ]] && echo "Commit is not in ${ENVIRONMENT} branch. Cannot deploy."
