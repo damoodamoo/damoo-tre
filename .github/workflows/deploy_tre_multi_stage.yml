@@ -1,5 +1,5 @@
 ---
-name: Deploy Azure TRE Multi Stage
+name: Build Azure TRE From Commit
 # This workflow is manually triggered, and will deploy the TRE against a dev and a prod environment
 
 on:  # yamllint disable-line rule:truthy
