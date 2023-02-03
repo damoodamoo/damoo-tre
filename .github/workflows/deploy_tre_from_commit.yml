@@ -25,6 +25,7 @@ jobs:
       with:
         persist-credentials: false
         ref: ${{ inputs.environment }}
+        fetch-depth: 0
 
       # git branch --contains ${{inputs.commit_sha}} returns a list of all branches in the repo containing
       # that commit. We grep that with an exact match to check if the dev|prod branch contains this sha.
