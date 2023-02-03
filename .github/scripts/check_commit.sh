@@ -10,4 +10,10 @@ ENVIRONMENT=${2}
 
 SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
 echo "${SHA_IN_ENV_BRANCH}"
-[[ -z "${SHA_IN_ENV_BRANCH}" ]] && echo "Commit is not in ${ENVIRONMENT} branch. Cannot deploy."
+
+if [[ -z "${SHA_IN_ENV_BRANCH}" ]] ; then
+  echo "Commit is not in ${ENVIRONMENT} branch. Cannot deploy."
+  exit 1
+fi
+
+echo "Commit ${COMMIT_SHA} found in ${ENVIRONMENT} branch. Continuing."
