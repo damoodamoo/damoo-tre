@@ -20,16 +20,19 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-    - name: Check Commit is in Env Branch
-      run: |
-        SHA_IN_ENV_BRANCH=$(git branch --contains ${{inputs.commit_sha}} | grep -w "${{inputs.environment}}")
-        [[ -z $SHA_IN_ENV_BRANCH ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
-
     - name: Checkout
       uses: actions/checkout@v3
       with:
         persist-credentials: false
         ref: ${inputs.commit_sha}
+
+      # git branch --contains ${{inputs.commit_sha}} returns a list of all branches in the repo containing
+      # that commit. We grep that with an exact match to check if the dev|prod branch contains this sha.
+      # if so - it's approved for that environment, and we continue. if not, we fail out.
+    - name: Check Commit is in ${{inputs.environment}} Branch
+      run: |
+        SHA_IN_ENV_BRANCH=$(git branch --contains ${{inputs.commit_sha}} | grep -w "${{inputs.environment}}")
+        [[ -z $SHA_IN_ENV_BRANCH ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
