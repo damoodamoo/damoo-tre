@@ -32,7 +32,7 @@ jobs:
       run: |
         git fetch
         git branch
-        git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
+        git branch -r --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
 
     - name: Checkout ${{ inputs.commit_sha }}
       uses: actions/checkout@v3
