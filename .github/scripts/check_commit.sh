@@ -5,10 +5,13 @@ set -o nounset
 # Uncomment this line to see each command for debugging (careful: this will show secrets!)
 # set -o xtrace
 
-COMMIT_SHA=${1}
-ENVIRONMENT=${2}
-
+echo "8"
+COMMIT_SHA="${1}"
+ENVIRONMENT="${2}"
+echo "11
+"
 SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
+echo "14"
 echo "${SHA_IN_ENV_BRANCH}"
 
 if [[ -z "${SHA_IN_ENV_BRANCH}" ]] ; then
