@@ -32,9 +32,7 @@ jobs:
       # if so - it's approved for that environment, and we continue. if not, we fail out.
     - name: Check Commit is in ${{inputs.environment}} Branch
       run: |
-        SHA_IN_ENV_BRANCH=$(git branch --contains "${{ inputs.commit_sha }}" | grep -w "${{ inputs.environment }}")
-        echo "$SHA_IN_ENV_BRANCH"
-        [[ -z $(git branch --contains "${{ inputs.commit_sha }}" | grep -w "${{ inputs.environment }}") ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
+        ./.github/scripts/copy_core_image.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
