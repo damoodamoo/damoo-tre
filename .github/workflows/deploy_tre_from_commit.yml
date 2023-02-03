@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         persist-credentials: false
-        ref: ${inputs.commit_sha}
+        ref: ${{inputs.commit_sha}}
 
       # git branch --contains ${{inputs.commit_sha}} returns a list of all branches in the repo containing
       # that commit. We grep that with an exact match to check if the dev|prod branch contains this sha.
@@ -94,7 +94,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Copy bundle
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -125,7 +125,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Copy image
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -147,7 +147,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         persist-credentials: false
-        ref: ${inputs.commit_sha}
+        ref: ${{inputs.commit_sha}}
 
     - name: Start TRE
       uses: ./.github/actions/devcontainer_multi_run_command
@@ -234,7 +234,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Register bundle
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -282,7 +282,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Register bundle
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -314,7 +314,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Deploy firewall
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -359,7 +359,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          ref: ${inputs.commit_sha}
+          ref: ${{inputs.commit_sha}}
 
       - name: Deploy UI
         uses: ./.github/actions/devcontainer_multi_run_command
