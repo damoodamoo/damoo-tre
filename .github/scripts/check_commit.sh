@@ -3,7 +3,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 # Uncomment this line to see each command for debugging (careful: this will show secrets!)
-# set -o xtrace
+set -o xtrace
 
 echo "8"
 COMMIT_SHA="${1}"
