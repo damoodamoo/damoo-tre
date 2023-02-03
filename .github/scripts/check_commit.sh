@@ -10,7 +10,7 @@ COMMIT_SHA="${1}"
 ENVIRONMENT="${2}"
 echo "11"
 
-git --help
+git branch --contains "${COMMIT_SHA}"
 
 SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
 echo "14"
