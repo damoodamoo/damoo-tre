@@ -2,7 +2,6 @@
 SHELL:=/bin/bash
 
 AZURETRE_HOME?="AzureTRE"
-AZURECR_HOST="azurecr.io"
 
 include $(AZURETRE_HOME)/Makefile
 

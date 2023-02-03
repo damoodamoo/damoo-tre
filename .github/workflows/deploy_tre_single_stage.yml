@@ -1,78 +1,41 @@
 ---
-name: Deploy Azure TRE Single Stage
+name: Deploy Azure TRE From Commit
 # This workflow is called by the "Deploy Azure TRE Multi Stage" workflow, and will deploy a TRE to a given environment
 
 on:  # yamllint disable-line rule:truthy
-  workflow_call:
+  workflow_dispatch:
     inputs:
-      environmentName:
-        description: The name of the Github Action's environment this will deploy into
+      environment:
+        description: The environment this will deploy into
+        type: environment
+        required: true
+      commit_sha:
+        description: The commit SHA of the code to deploy
         type: string
-        required: true
-    secrets:
-      SOURCE_ACR_NAME:
-        description: The name of the ACR containing the images to be brought into this environment
-        required: true
-      SOURCE_AZURE_CREDENTIALS:
-        description: "Creds for the subscription which contains the deployment ACR"
-        required: true
-      AZURE_CREDENTIALS:
-        required: true
-      TRE_ID:
-        required: true
-      LOCATION:
-        required: true
-      ACR_NAME:
-        required: true
-      TERRAFORM_STATE_CONTAINER_NAME:
-        required: true
-      MGMT_RESOURCE_GROUP_NAME:
-        required: true
-      MGMT_STORAGE_ACCOUNT_NAME:
-        required: true
-      API_CLIENT_ID:
-        required: true
-      AAD_TENANT_ID:
-        required: true
-      CORE_ADDRESS_SPACE:
-        required: true
-      TRE_ADDRESS_SPACE:
-        required: true
-      ENABLE_SWAGGER:
-        required: true
-      SWAGGER_UI_CLIENT_ID:
-        required: true
-      API_CLIENT_SECRET:
-        required: true
-      APPLICATION_ADMIN_CLIENT_ID:
-        required: true
-      APPLICATION_ADMIN_CLIENT_SECRET:
-        required: true
-      CORE_APP_SERVICE_PLAN_SKU:
-        required: true
-      RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE:
-        required: false
-      TEST_ACCOUNT_CLIENT_ID:
-        required: true
-      TEST_ACCOUNT_CLIENT_SECRET:
         required: true
 
 jobs:
   deploy_management:
     name: Deploy Management
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
+    - name: Check Commit is in Env Branch
+      run: |
+        SHA_IN_ENV_BRANCH=$(git branch --contains ${{inputs.commit_sha}} | grep -w "${{inputs.environment}}")
+        [[ -z $SHA_IN_ENV_BRANCH ]] && echo "Commit is not in ${{inputs.environment}} branch. Cannot deploy." && exit 1
+
     - name: Checkout
       uses: actions/checkout@v3
       with:
         persist-credentials: false
+        ref: ${inputs.commit_sha}
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make bootstrap mgmt-deploy"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
+        DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -86,7 +49,7 @@ jobs:
   copy_bundles:
     name: Copy Bundles
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     needs: [deploy_management]
     strategy:
       matrix:
@@ -128,12 +91,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
 
       - name: Copy bundle
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "DIR=${{ matrix.BUNDLE_DIR }} make copy-bundle-image"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -142,7 +106,7 @@ jobs:
   copy_core_images:
     name: Copy Core Images
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     needs: [deploy_management]
     strategy:
       matrix:
@@ -158,12 +122,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
 
       - name: Copy image
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "IMAGE_NAME=${{ matrix.IMAGE_NAME }} IMAGE_VERSION_FILE=${{ matrix.IMAGE_VERSION_FILE }} make copy-core-image"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -172,19 +137,20 @@ jobs:
   deploy_tre:
     name: Deploy TRE
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     needs: [copy_bundles, copy_core_images]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
         persist-credentials: false
+        ref: ${inputs.commit_sha}
 
     - name: Start TRE
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make tre-start"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
+        DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -194,7 +160,7 @@ jobs:
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "TF_VAR_ci_git_ref=${{ inputs.ciGitRef }} TF_LOG=${{ secrets.TF_LOG }} make deploy-core"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
+        DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -221,7 +187,7 @@ jobs:
       uses: ./.github/actions/devcontainer_multi_run_command
       with:
         COMMAND: "make api-healthcheck"
-        DEVCONTAINER_TAG: ${{ github.run_id }}
+        DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
         SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
         SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -231,7 +197,7 @@ jobs:
   register_bundles:
     name: Register Bundles
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     needs: [copy_bundles, deploy_tre]
     strategy:
       matrix:
@@ -265,6 +231,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
 
       - name: Register bundle
         uses: ./.github/actions/devcontainer_multi_run_command
@@ -272,7 +239,7 @@ jobs:
           COMMAND: >-
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -288,7 +255,7 @@ jobs:
   register_user_resource_bundles:
     name: Register User Resource Bundles
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     # user resource bundles need to wait for their parent resource to be registered.
     needs: [register_bundles]
     strategy:
@@ -312,13 +279,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
+
       - name: Register bundle
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: >-
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -336,18 +305,19 @@ jobs:
     name: Deploy Firewall
     runs-on: ubuntu-latest
     needs: [register_bundles]
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
 
       - name: Deploy firewall
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "make deploy-shared-service DIR=\\${AZURETRE_HOME}/templates/shared_services/firewall/ BUNDLE_TYPE=shared_service"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -362,7 +332,7 @@ jobs:
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "make db-migrate"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -380,17 +350,19 @@ jobs:
     name: Deploy UI
     runs-on: ubuntu-latest
     needs: [deploy_tre]
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+          ref: ${inputs.commit_sha}
+
       - name: Deploy UI
         uses: ./.github/actions/devcontainer_multi_run_command
         with:
           COMMAND: "make build-and-deploy-ui"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           SOURCE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           SOURCE_AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
