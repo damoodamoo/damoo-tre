@@ -49,17 +49,17 @@ jobs:
         SOURCE_ACR=${{ secrets.SOURCE_ACR_NAME }}.azurecr.io
 
         docker_cache=()
-        docker_cache+=(--cache-from "$SOURCE_ACR/tredev:${{ github.run_id }}")
+        docker_cache+=(--cache-from "$SOURCE_ACR/tredev:${{ inputs.commit_sha }}")
         docker_cache+=(--cache-from "$SOURCE_ACR/tredev:latest")
 
         docker build . "${docker_cache[@]}" \
-          -t "tredev:${{ github.run_id }}" -f ".devcontainer/Dockerfile" \
+          -t "tredev:${{ inputs.commit_sha }}" -f ".devcontainer/Dockerfile" \
           --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg USER_UID="${USER_UID}" --build-arg USER_GID="${USER_GID}"
 
-        docker image tag tredev:${{ github.run_id }} \
-          $SOURCE_ACR/tredev:${{ github.run_id }}
+        docker image tag tredev:${{ inputs.commit_sha }} \
+          $SOURCE_ACR/tredev:${{ inputs.commit_sha }}
 
-        docker image push $SOURCE_ACR/tredev:${{ github.run_id }}
+        docker image push $SOURCE_ACR/tredev:${{ inputs.commit_sha }}
 
   build_core_images:
     # used to build images used by core infrastructure
@@ -83,7 +83,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           COMMAND: "make ${{ matrix.target }}"
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
           AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
@@ -142,7 +142,7 @@ jobs:
           COMMAND: >-
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
-          DEVCONTAINER_TAG: ${{ github.run_id }}
+          DEVCONTAINER_TAG: ${{ inputs.commit_sha }}
           AZURE_CREDENTIALS: ${{ secrets.SOURCE_AZURE_CREDENTIALS }}
           CI_CACHE_ACR_NAME: ${{ secrets.SOURCE_ACR_NAME}}
           ACR_NAME: ${{ secrets.SOURCE_ACR_NAME }}
