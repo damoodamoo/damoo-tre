@@ -33,10 +33,9 @@ jobs:
     - name: Check Commit is in ${{inputs.environment}} Branch
       run: |
         echo ${{ github.workspace }}
-        ls
         cd ${{ github.workspace }}
-        cd ..
-        bash ./.github/scripts/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
+        ls -a
+        bash ${{ github.workspace }}/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
 
     - name: Deploy management
       uses: ./.github/actions/devcontainer_multi_run_command
