@@ -20,7 +20,8 @@ git fetch
 
 git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
 
-git branch --contains "${COMMIT_SHA}"
+SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}")
+
 echo "24"
 SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
 echo "18"
