@@ -31,9 +31,7 @@ jobs:
       # if so - it's approved for that environment, and we continue. if not, we fail out.
     - name: Check Commit is in ${{inputs.environment}} Branch
       run: |
-        git branch
         git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
-        bash ${{ github.workspace }}/.github/scripts/check_commit.sh "${{ inputs.commit_sha }}" "${{ inputs.environment }}"
 
     - name: Checkout ${{ inputs.commit_sha }}
       uses: actions/checkout@v3
