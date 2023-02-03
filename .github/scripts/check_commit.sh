@@ -20,8 +20,8 @@ git fetch
 
 git branch --contains 5bb71c81894811bd9aac0914b0999ae9fb77b1ab
 
-# SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
-# echo "18"
+SHA_IN_ENV_BRANCH=$(git branch --contains "${COMMIT_SHA}" | grep -w "${ENVIRONMENT}")
+echo "18"
 # echo "${SHA_IN_ENV_BRANCH}"
 
 # if [[ -z "${SHA_IN_ENV_BRANCH}" ]] ; then
